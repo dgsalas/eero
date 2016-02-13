@@ -1,15 +1,20 @@
 # -*- coding: utf-8 -*-
 __author__ = 'dgsalas'
 
+from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
-from flask_sqlalchemy import SQL_Alchemy, create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from flask_sqlalchemy import SQLAlchemy
+from eero import app
 
-db = SQLAlchemy(app)
-
-session = scoped_session(sessionmaker(autocommit=False,
+engine = create_engine('postgresql://postgres@localhost:5432/eero', convert_unicode=True)
+db_session = scoped_session(sessionmaker(autocommit=False,
                                          autoflush=False,
                                          bind=engine))
+Base = declarative_base()
+Base.query = db_session.query_property()
 
+db = SQLAlchemy(app)
 
 class Pages(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -52,6 +57,7 @@ class PagesSection(db.Model):
 
 
 class Clients(db.Model):
+    __tablename__ = 'clients'
     id = db.Column(db.Integer, primary_key=True)
 
     name = db.Column(db.String(80), unique=True)
@@ -59,6 +65,9 @@ class Clients(db.Model):
     city = db.Column(db.String(80))
     zipcode = db.Column(db.String(10))
     email = db.Column(db.String(40))
+
+    user_id = db.Column(db.Integer, db.ForeignKey('Users.id'))
+    user = db.relationship('Users', backref='user')
 
     def __init__(self, name, address, city, zipcode, email):
         self.name = name
@@ -68,18 +77,18 @@ class Clients(db.Model):
         self.email = email
 
     def __repr__(self):
-        user = db.session.query(self.user).one
-        return '<Client {} User {}>'.format(self.name, user.name)
+        return '<Client {} User {}>'.format(self.name, self.user.name)
 
 
 class Users(db.Model):
+    __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
 
     login = db.Column(db.String(20), unique=True)
     password = db.Column(db.String(128))
 
     client_id = db.Column(db.Integer, db.ForeignKey('Clients.id'))
-    client = db.relationship('Clients', backref=db.backref('client'), lazy='dynamic')
+    client = db.relationship('Clients', backref='user')
 
     def __init__(self, login, password, client_id=None):
         self.login = login
@@ -87,7 +96,6 @@ class Users(db.Model):
         self.client_id = client_id
 
     def __repr__(self):
-
         if self.client_id is None:
             return 'User {}'.format(self.login)
         else:
@@ -95,12 +103,13 @@ class Users(db.Model):
 
 
 class Projects(db.Model):
+    __tablename__ = 'projects'
     id = db.Column(db.Integer, primary_key=True)
 
     name = db.Column(db.String(40), unique=True)
 
     client_id = db.Column(db.Integer, db.ForeignKey('Clients.id'))
-    client = db.relationship('Clients', backref=db.backref('client'), lazy='dynamic')
+    client = db.relationship('Clients', backref='client')
 
     def __init__(self, name, client_id):
         self.name = name
@@ -127,10 +136,11 @@ class Rooms(db.Model):
 
 
 class Hours(db.Model):
+    __tablename__ = 'hours'
     id = db.Column(db.Integer, primary_key=True)
 
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id'))
-    user = db.relationship('Users', backref=db.backref('user'), lazy='dynamic')
+    user = db.relationship('Users', backref='user')
 
     date = db.Column(db.Date)
     start_time = db.Column(db.Time)
@@ -140,7 +150,7 @@ class Hours(db.Model):
     create_invoice = db.Column(db.Boolean)
 
     room_id = db.Column(db.Integer, db.ForeignKey('Rooms.id'))
-    room = db.relationship('Rooms', backref=db.backref('hours'), lazy='dynamic')
+    room = db.relationship('Rooms', backref='hours')
 
     def __init__(self, user_id, date, start_time, finish_time, time, create_invoice=None, room_id=None):
         self.user_id = user_id
@@ -160,6 +170,7 @@ class Hours(db.Model):
 
 
 class ImageTypes(db.Model):
+    __tablename__= 'imagetypes'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
 
@@ -171,16 +182,17 @@ class ImageTypes(db.Model):
 
 
 class Images(db.Model):
+    __tablename__ = 'images'
     id = db.Column(db.Integer, primary_key=True)
 
     name = db.Column(db.String(100))
     extension = db.Column(db.String(5))
 
     room_id = db.Column(db.Integer, db.ForeignKey('Rooms.id'))
-    room = db.relationship('Rooms', backref=db.backref('hours'), lazy='dynamic')
+    room = db.relationship('Rooms', backref='hours')
 
-    image_type = db.Column(db.Integer, db.ForeignKey('ImageTypes.id'))
-    type = db.relationship('ImageTypes', backref=db.backref('images'), lazy='dynamic')
+    type_id = db.Column(db.Integer, db.ForeignKey('ImageTypes.id'))
+    type = db.relationship('ImageTypes', backref='images')
 
     private = db.Column(db.Boolean)
 
@@ -195,6 +207,11 @@ class Images(db.Model):
         return 'Image {}, Room {}, Project {}, Client {}'.format(self.name, self.room.name,
                                                                  self.room.project.name, self.client.name)
 
-def Inicializar():
+if __name__ == "__main__":
+
     # Si no hay tipos de imágenes, inicializamos la base de datos
-    if session.query(ImageTypes).count == 0:
+    if db.session.query(ImageTypes).count == 0:
+        tipo = ImageTypes('Idea')
+        db.session.add(tipo)
+        tipo = ImageTypes('Render')
+        db.session.add(tipo)
