@@ -1,11 +1,14 @@
+# -*- coding: utf-8 -*-
 __author__ = 'dgsalas'
 
-from flask import Flask
+from sqlalchemy.orm import scoped_session, sessionmaker
 from flask_sqlalchemy import SQL_Alchemy, create_engine
 
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://sysdba:master@localhost:5432/eero'
 db = SQLAlchemy(app)
+
+session = scoped_session(sessionmaker(autocommit=False,
+                                         autoflush=False,
+                                         bind=engine))
 
 
 class Pages(db.Model):
@@ -45,7 +48,7 @@ class PagesSection(db.Model):
         self.order = order
 
     def __repr__(self):
-        return '<Page {}, Sectiom {}, Order {}>'.format(self.page.name, self.section.name, self.order)
+        return '<Page {}, Section {}, Order {}>'.format(self.page.name, self.section.name, self.order)
 
 
 class Clients(db.Model):
@@ -179,12 +182,19 @@ class Images(db.Model):
     image_type = db.Column(db.Integer, db.ForeignKey('ImageTypes.id'))
     type = db.relationship('ImageTypes', backref=db.backref('images'), lazy='dynamic')
 
-    def __init__(self, name, extension, room_id, type_id):
+    private = db.Column(db.Boolean)
+
+    def __init__(self, name, extension, private, room_id, type_id):
         self.name = name
         self.extension = extension
+        self.private = private
         self.room_id = room_id
         self.type_id = type_id
 
     def __repr__(self):
         return 'Image {}, Room {}, Project {}, Client {}'.format(self.name, self.room.name,
                                                                  self.room.project.name, self.client.name)
+
+def Inicializar():
+    # Si no hay tipos de imágenes, inicializamos la base de datos
+    if session.query(ImageTypes).count == 0:
