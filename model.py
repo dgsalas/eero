@@ -2,24 +2,42 @@
 __author__ = 'dgsalas'
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy.orm import scoped_session, sessionmaker, relation
+from sqlalchemy.schema import Column, ForeignKey
+from sqlalchemy.types import Integer, String, Date, Text, Boolean, Time
 from sqlalchemy.ext.declarative import declarative_base
 from flask_sqlalchemy import SQLAlchemy
 from eero import app
 
-engine = create_engine('postgresql://postgres@localhost:5432/eero', convert_unicode=True)
-db_session = scoped_session(sessionmaker(autocommit=False,
-                                         autoflush=False,
-                                         bind=engine))
-Base = declarative_base()
-Base.query = db_session.query_property()
+ENGINES = {}
+def get_engine(conn_str):
+    """
+    Singleton que devuelve un engine a partir de una cadena de conexión (conn_str).
+    Si conn_str ya ha sido usado se devuelve el existente de tal forma que globalmente
+    existe un único engine por cada cadena de conexión (o por cada database que es lo mismo)
+    """
+    global ENGINES
+    e = ENGINES.get(conn_str)
+    if e is None:
+        e = create_engine(conn_str, pool_size=50) #, poolclass=SingletonThreadPool, pool_size=50, pool_recycle=30)
+        ENGINES[conn_str] = e
+
+    return e
+
+engine = get_engine('postgresql://postgres@localhost:5432/eero')
+Session = sessionmaker(bind=engine)
+session = Session()
+base = declarative_base()
 
 db = SQLAlchemy(app)
 
-class Pages(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(80), unique=True)
-    home = db.Column(db.Boolean, unique=True)
+
+class Pages(base):
+    """ Pages of the site (would it be better to use a CMS?)  """
+    __tablename__ = 'pages'
+    id = Column(Integer, primary_key=True)
+    name = Column(String(80), unique=True)
+    home = Column(Boolean, unique=True)
 
     def __init__(self, name, home):
         self.name = name
@@ -29,9 +47,11 @@ class Pages(db.Model):
         return '<Page {}>'.format(self.name)
 
 
-class Sections(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(80), unique=True)
+class Sections(base):
+    """ Section of the site. As you can see, it's a M to N relationship  """
+    __tablename__ = 'sections'
+    id = Column(Integer, primary_key=True)
+    name = Column(String(80), unique=True)
 
     def __init__(self, name):
         self.name = name
@@ -40,12 +60,16 @@ class Sections(db.Model):
         return '<Section {}>'.format(self.name)
 
 
-class PagesSection(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    page_id = db.Column(db.Integer, db.ForeignKey('pages.id'))
-    page = db.relationship('Pages', backref=db.backref('pages', lazy='dynamic'))
-    section_id = db.Column(db.Integer, db.ForeignKey('sections.id'))
-    section = db.relationship('Sections', backref=db.backref('sections', lazy='dynamic'))
+class PagesSections(base):
+    """ Table bewteen Pages and Sections  """
+    __tablename__ = 'pagessections'
+    id = Column(Integer, primary_key=True)
+
+    page_id = Column(Integer, ForeignKey(Pages.id))
+    page = relation(Pages, backref='pages')
+
+    section_id = Column(Integer, ForeignKey(Sections.id))
+    section = relation('Sections', backref='sections')
 
     def __init__(self, page_id, section_id, order):
         self.page_id = page_id
@@ -56,18 +80,19 @@ class PagesSection(db.Model):
         return '<Page {}, Section {}, Order {}>'.format(self.page.name, self.section.name, self.order)
 
 
-class Clients(db.Model):
+class Clients(base):
+    """ Clients of the company  """
     __tablename__ = 'clients'
-    id = db.Column(db.Integer, primary_key=True)
+    id = Column(Integer, primary_key=True)
 
-    name = db.Column(db.String(80), unique=True)
-    address = db.Column(db.Text)
-    city = db.Column(db.String(80))
-    zipcode = db.Column(db.String(10))
-    email = db.Column(db.String(40))
+    name = Column(String(80), unique=True)
+    address = Column(Text)
+    city = Column(String(80))
+    zipcode = Column(String(10))
+    email = Column(String(40))
 
-    user_id = db.Column(db.Integer, db.ForeignKey('Users.id'))
-    user = db.relationship('Users', backref='user')
+    # user_id = Column(Integer, ForeignKey(Users.id))
+    # user = relation('Users', backref='user')
 
     def __init__(self, name, address, city, zipcode, email):
         self.name = name
@@ -80,15 +105,16 @@ class Clients(db.Model):
         return '<Client {} User {}>'.format(self.name, self.user.name)
 
 
-class Users(db.Model):
+class Users(base):
+    """ Users of the system  """
     __tablename__ = 'users'
-    id = db.Column(db.Integer, primary_key=True)
+    id = Column(Integer, primary_key=True)
 
-    login = db.Column(db.String(20), unique=True)
-    password = db.Column(db.String(128))
+    login = Column(String(20), unique=True)
+    password = Column(String(128))
 
-    client_id = db.Column(db.Integer, db.ForeignKey('Clients.id'))
-    client = db.relationship('Clients', backref='user')
+    client_id = Column(Integer, ForeignKey(Clients.id))
+    client = relation('Clients', backref='user')
 
     def __init__(self, login, password, client_id=None):
         self.login = login
@@ -102,14 +128,15 @@ class Users(db.Model):
             return 'User {}, Client {}'.format(self.login, self.client.name)
 
 
-class Projects(db.Model):
+class Projects(base):
+    """ Projects of the company  """
     __tablename__ = 'projects'
-    id = db.Column(db.Integer, primary_key=True)
+    id = Column(Integer, primary_key=True)
 
-    name = db.Column(db.String(40), unique=True)
+    name = Column(String(40), unique=True)
 
-    client_id = db.Column(db.Integer, db.ForeignKey('Clients.id'))
-    client = db.relationship('Clients', backref='client')
+    client_id = Column(Integer, ForeignKey(Clients.id))
+    client = relation('Clients', backref='client')
 
     def __init__(self, name, client_id):
         self.name = name
@@ -119,38 +146,41 @@ class Projects(db.Model):
         return 'Project {}, Client {}'.format(self.name, self.client.name)
 
 
-class Rooms(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+class Rooms(base):
+    """ Rooms of the project  """
+    __tablename__ = 'rooms'
+    id = Column(Integer, primary_key=True)
 
-    name = db.Column(db.String(40))
+    name = Column(String(40))
 
-    project_id = db.Column(db.Integer, db.ForeignKey('Projects.id'))
-    project = db.relationship('Project', backref=db.backref('project'), lazy='dynamic')
+    project_id = Column(Integer, ForeignKey(Projects.id))
+    project = relation('Projects')
 
     def __init__(self, name, project_id):
         self.name = name
         self.project_id = project_id
 
     def __repr__(self):
-        return 'Project {}, Client {}'.format(self.name, self.client.name)
+        return 'Room {} Project {}, Client {}'.format(self.name, self.project.name, self.client.name)
 
 
-class Hours(db.Model):
+class Hours(base):
+    """ Hours worked  """
     __tablename__ = 'hours'
-    id = db.Column(db.Integer, primary_key=True)
+    id = Column(Integer, primary_key=True)
 
-    user_id = db.Column(db.Integer, db.ForeignKey('Users.id'))
-    user = db.relationship('Users', backref='user')
+    user_id = Column(Integer, ForeignKey(Users.id))
+    user = relation('Users', backref='user')
 
-    date = db.Column(db.Date)
-    start_time = db.Column(db.Time)
-    finish_time = db.Column(db.Time)
-    time = db.Column(db.Integer)
+    date = Column(Date)
+    start_time = Column(Time)
+    finish_time = Column(Time)
+    time = Column(Integer)
 
-    create_invoice = db.Column(db.Boolean)
+    create_invoice = Column(Boolean)
 
-    room_id = db.Column(db.Integer, db.ForeignKey('Rooms.id'))
-    room = db.relationship('Rooms', backref='hours')
+    room_id = Column(Integer, ForeignKey(Rooms.id))
+    room = relation('Rooms', backref='hours')
 
     def __init__(self, user_id, date, start_time, finish_time, time, create_invoice=None, room_id=None):
         self.user_id = user_id
@@ -166,13 +196,14 @@ class Hours(db.Model):
             return '{} Hours, {} User'.format(self.time, self.user.login)
         else:
             return '{} Hours, {} User, {} Room, {} Project {}'.format(self.time, self.user.name,
-                                                                      self.room.name, self.room.projedct.mname)
+                                                                      self.room.name, self.room.project.name)
 
 
-class ImageTypes(db.Model):
+class ImageTypes(base):
+    """ Types of images """
     __tablename__= 'imagetypes'
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100))
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100))
 
     def __init__(self, name):
         self.name = name
@@ -181,20 +212,21 @@ class ImageTypes(db.Model):
         return '<ImageType {}>'.format(self.name)
 
 
-class Images(db.Model):
+class Images(base):
+    """ Images of the room  """
     __tablename__ = 'images'
-    id = db.Column(db.Integer, primary_key=True)
+    id = Column(Integer, primary_key=True)
 
-    name = db.Column(db.String(100))
-    extension = db.Column(db.String(5))
+    name = Column(String(100))
+    extension = Column(String(5))
 
-    room_id = db.Column(db.Integer, db.ForeignKey('Rooms.id'))
-    room = db.relationship('Rooms', backref='hours')
+    room_id = Column(Integer, ForeignKey(Rooms.id))
+    room = relation('Rooms')
 
-    type_id = db.Column(db.Integer, db.ForeignKey('ImageTypes.id'))
-    type = db.relationship('ImageTypes', backref='images')
+    type_id = Column(Integer, ForeignKey(ImageTypes.id))
+    type = relation('ImageTypes')
 
-    private = db.Column(db.Boolean)
+    private = Column(Boolean)
 
     def __init__(self, name, extension, private, room_id, type_id):
         self.name = name
@@ -210,8 +242,13 @@ class Images(db.Model):
 if __name__ == "__main__":
 
     # Si no hay tipos de imágenes, inicializamos la base de datos
-    if db.session.query(ImageTypes).count == 0:
+    base.metadata.create_all(engine)
+    print(session.query(ImageTypes).count())
+    if session.query(ImageTypes).count() == 0:
         tipo = ImageTypes('Idea')
-        db.session.add(tipo)
+        session.add(tipo)
         tipo = ImageTypes('Render')
-        db.session.add(tipo)
+        session.add(tipo)
+        print('OK!')
+        session.commit()
+
