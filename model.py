@@ -1,35 +1,19 @@
 # -*- coding: utf-8 -*-
+""" """
 __author__ = 'dgsalas'
 
-from sqlalchemy import create_engine
-from sqlalchemy.orm import scoped_session, sessionmaker, relation
-from sqlalchemy.schema import Column, ForeignKey
+from sqlalchemy.orm import relation, relationship
+from sqlalchemy.schema import Column, ForeignKey, Table
 from sqlalchemy.types import Integer, String, Date, Text, Boolean, Time
-from sqlalchemy.ext.declarative import declarative_base
 from flask_sqlalchemy import SQLAlchemy
-from eero import app
-
-ENGINES = {}
-def get_engine(conn_str):
-    """
-    Singleton que devuelve un engine a partir de una cadena de conexión (conn_str).
-    Si conn_str ya ha sido usado se devuelve el existente de tal forma que globalmente
-    existe un único engine por cada cadena de conexión (o por cada database que es lo mismo)
-    """
-    global ENGINES
-    e = ENGINES.get(conn_str)
-    if e is None:
-        e = create_engine(conn_str, pool_size=50) #, poolclass=SingletonThreadPool, pool_size=50, pool_recycle=30)
-        ENGINES[conn_str] = e
-
-    return e
-
-engine = get_engine('postgresql://postgres@localhost:5432/eero')
-Session = sessionmaker(bind=engine)
-session = Session()
-base = declarative_base()
+from connection import base, app, session, metadata
 
 db = SQLAlchemy(app)
+
+
+PagesSections = Table('pagessections', metadata,
+                      Column('page_id', Integer, ForeignKey('Pages.id'), primary_key=True),
+                      Column('section_id', Integer, ForeignKey('Sections.id'), primary_key=True))
 
 
 class Pages(base):
@@ -37,11 +21,25 @@ class Pages(base):
     __tablename__ = 'pages'
     id = Column(Integer, primary_key=True)
     name = Column(String(80), unique=True)
-    home = Column(Boolean, unique=True)
+    home = Column(Boolean)
+    url = Column(String(50), unique=True)
 
-    def __init__(self, name, home):
+    sections = relation(
+        "Sections",
+        primaryoin="PagesSections.id",
+        secondary=PagesSections,
+        back_populates="pages")
+
+    # parent_host = relationship("HostEntry",
+    #                        primaryjoin=ip_address == cast(content, INET),
+    #                        foreign_keys=content,
+    #                        remote_side=ip_address
+    #                        )
+
+    def __init__(self, name, home, url):
         self.name = name
         self.home = home
+        self.url = url
 
     def __repr__(self):
         return '<Page {}>'.format(self.name)
@@ -53,31 +51,16 @@ class Sections(base):
     id = Column(Integer, primary_key=True)
     name = Column(String(80), unique=True)
 
+    pages = relationship(
+        "Pages",
+        secondary=PagesSections,
+        back_populates="sections")
+
     def __init__(self, name):
         self.name = name
 
     def __repr__(self):
         return '<Section {}>'.format(self.name)
-
-
-class PagesSections(base):
-    """ Table bewteen Pages and Sections  """
-    __tablename__ = 'pagessections'
-    id = Column(Integer, primary_key=True)
-
-    page_id = Column(Integer, ForeignKey(Pages.id))
-    page = relation(Pages, backref='pages')
-
-    section_id = Column(Integer, ForeignKey(Sections.id))
-    section = relation('Sections', backref='sections')
-
-    def __init__(self, page_id, section_id, order):
-        self.page_id = page_id
-        self.section_id = section_id
-        self.order = order
-
-    def __repr__(self):
-        return '<Page {}, Section {}, Order {}>'.format(self.page.name, self.section.name, self.order)
 
 
 class Clients(base):
@@ -90,9 +73,6 @@ class Clients(base):
     city = Column(String(80))
     zipcode = Column(String(10))
     email = Column(String(40))
-
-    # user_id = Column(Integer, ForeignKey(Users.id))
-    # user = relation('Users', backref='user')
 
     def __init__(self, name, address, city, zipcode, email):
         self.name = name
@@ -201,7 +181,7 @@ class Hours(base):
 
 class ImageTypes(base):
     """ Types of images """
-    __tablename__= 'imagetypes'
+    __tablename__ = 'imagetypes'
     id = Column(Integer, primary_key=True)
     name = Column(String(100))
 
@@ -239,16 +219,26 @@ class Images(base):
         return 'Image {}, Room {}, Project {}, Client {}'.format(self.name, self.room.name,
                                                                  self.room.project.name, self.client.name)
 
-if __name__ == "__main__":
-
-    # Si no hay tipos de imágenes, inicializamos la base de datos
-    base.metadata.create_all(engine)
-    print(session.query(ImageTypes).count())
+def setup_database():
+    """
+    If there's no image types, let's setup the database with initial objects
+    """
     if session.query(ImageTypes).count() == 0:
-        tipo = ImageTypes('Idea')
-        session.add(tipo)
-        tipo = ImageTypes('Render')
-        session.add(tipo)
+        image_type = ImageTypes('Idea')
+        session.add(image_type)
+        image_type = ImageTypes('Render')
+        session.add(image_type)
+
+        page = Pages('Home', True, '/')
+        session.add(page)
+
+        page = Pages('Products', False, '/products/')
+        session.add(page)
+
+        page = Pages('Services', False, '/services/')
+        session.add(page)
+
         print('OK!')
         session.commit()
+
 

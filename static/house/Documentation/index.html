@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>HOUSE Documentation</title>
+
+        <!-- Favicon-->
+        <link rel="icon" type="image/png" href="img/favicon.ico">
+
+        <!-- Bootstrap -->
+        <link href="css/bootstrap.css" rel="stylesheet">
+        
+        <link href="css/style.css" rel="stylesheet">
+        
+        <!-- Fonts -->
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700,600,800,300' rel='stylesheet' type='text/css'>
+        
+
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+          <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+          <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+    </head>
+    <body>
+        
+
+        <header class="navbar navbar-inverse navbar-fixed-top" role="banner">
+          <div class="container">
+            <div class="navbar-header">
+              <button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              <a href="http://denisgriu.com" class="navbar-brand" target="_blank">
+                Denis Griu  
+              </a>
+            </div>
+            <nav class="collapse navbar-collapse" role="navigation">
+              <ul class="nav navbar-nav navbar-right">
+                  
+                  <li>
+                    <a href="#masthead" style="font-weight:700; background-color:transparent; padding-top:14px;">Back to top</a>
+                  </li>
+                  <li>
+                    <a href="#kreda" style="font-weight:700; background-color:transparent; padding-top:14px;">Credits</a>
+                  </li>
+                  
+              </ul>
+            </nav>
+          </div>
+        </header>
+
+        <div id="masthead">  
+          <div class="container text-center">
+              <div class="row">
+                <div class="col-md-12">
+                  <h1>HOUSE
+                    <p class="lead">Theme Documentation</p>
+                  </h1>
+                </div>
+                 
+              </div> 
+          </div><!-- /cont -->
+        </div>
+
+        <!-- Begin Body -->
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3" id="leftCol">
+
+                        <ul class="nav nav-stacked" id="sidebar" style="padding-top:20px;">
+                          <li><a href="#general">General Information</a></li>
+                          <li><a href="#html-structure">HTML Structure</a></li>
+                          <li><a href="#css-structure">CSS Structure</a></li>
+                          <li><a href="#javascript">Javascript</a></li>                          
+                            <li><a href="#bg">Backgrounds</a></li>
+                            <li><a href="#icons">Icons</a></li>                            
+                            <li><a href="#portfolio">Projects</a></li>
+                            <li><a href="#google">Google Map Address</a></li>
+                            <li><a href="#contact">Contact Form</a></li>
+                            <li><a href="#kreda">Source & Credits</a></li>
+                            
+                        </ul>
+
+                    </div>  
+                    <div class="col-md-9">                                    
+                        
+                        <div class="col-lg-12" id="general" style="margin-bottom:40px; padding-top:20px;">
+                            <h2>General Information</h2>
+                            <p>This template includes following pages:</p>
+
+                            <div class="box">
+                                <ul>
+                                    <li>
+                                        index.html
+                                    </li>
+                                    <li>
+                                        about.html
+                                    </li>
+                                    <li>
+                                        services.html
+                                    </li>
+                                    <li>
+                                        projects.html
+                                    </li>
+                                    <li>
+                                        project-inner.html
+                                    </li>
+                                    <li>
+                                        blog.html
+                                    </li>
+                                    <li>
+                                        blog-inner.html
+                                    </li>
+                                    <li>
+                                        contact.html
+                                    </li>
+                                    <li>
+                                        contact.php
+                                    </li>
+                                </ul>
+                                <p>
+                                    Stylesheets <strong>(CSS)</strong> of this template are placed in <strong>assets/css/</strong> folder.<br>
+                                    All Images are in <strong>assets/img/</strong> folder.<br>
+                                    And all Javascripts files are in <strong>assets/js/</strong> folder.<br>
+                                    All Plugins files are in <strong>assets/plugins/</strong> folder.
+                                </p>
+                            </div>
+                        </div>                                             
+                        
+                        <div class="col-lg-12" id="html-structure" style="margin-bottom:40px; padding-top:20px;">
+                            <h2>HTML Structure</h2>
+                            <p>
+                                
+                                The template is based on <a href="http://getbootstrap.com/" target="_blank">Bootstrap 3</a> the most popular framework for developing responsive, mobile first projects.
+                                <br>
+                                <br>
+                                Bootstrap includes a responsive, mobile first fluid grid system that appropriately scales up to 12 columns as the device or viewport size increases. It includes predefined classes for easy layout options, as well as powerful mixins for generating more semantic layouts.
+                                
+                                <br>
+                                <br>
+                                Create a .container (fixed-width) or .container-fluid (full-width) for proper alignment and padding, then create .row and add columns with appropriate device name (xs, sm, md, lg) and grid number (2, 4, 6, 12).
+                                <br>
+                                <br>
+                                <strong>For full documentation, please visit Bootstrap 3 site: <a href="http://getbootstrap.com/css/">http://getbootstrap.com/css/</a></strong>
+                            </p>
+
+                            <div class="col-lg-12 highlight box">
+                                <pre><code class="html"><span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"container"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"row"</span><span class="nt">&gt;</span>
+    <span>&lt;div class="col-lg-12"&gt;</span>
+      ...
+    <span>&lt;/div&gt;</span>
+  <span class="nt">&lt;/div&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+</code></pre>
+                            </div>
+                        </div>                    
+                        
+                        <div class="col-lg-12" id="css-structure" style="margin-bottom:40px; padding-top:20px">
+                            <h2>CSS Structure</h2>
+                            <p>
+                                
+                                Well organized and labeled CSS files is one of my priorities.
+                                <br>
+                                These are the CSS file you're be using in the template:
+                                <br>
+                                
+                            </p>
+
+                            <div class="col-lg-12 highlight box">
+                                
+                                <ul>
+                                    <li>
+                                        <strong>bootstrap.css </strong> (Generic styles and the basic layout structure styles)
+                                    </li>
+                                    <li>
+                                        <strong>style.css </strong> (Elements such as titles, sections, backgrounds, column styles, etc...)
+                                    </li>                                    
+                                </ul>
+                                
+                            </div>
+                        </div>                                                                       
+                        
+                        <div class="col-lg-12" id="javascript" style="margin-bottom:40px; padding-top:20px">
+                            <h2>Javascript</h2>
+                            <p>
+                                
+                               jQuery - is a Javascript library that greatly reduces the amount of code that you must write.
+                                <br>
+                                For more information, please visit <a href="http://www.jquery.com/">http://www.jquery.com/</a>
+                                <br>
+                                <br>
+                                The initialization of the elements, libs and features is made by the file <strong>app.js</strong>, in the js folder.
+                                <br>
+                                Take a look at the "build" function to see what it does.
+                            </p>
+
+                            
+                        </div>
+                                            
+                              
+                         <!-------------------------------------------------------------------------------->
+                        <!-------------------------------------------------------------------------------->
+                        
+                        
+                        <div class="col-lg-12" id="bg" style="margin-bottom:40px; padding-top:20px">
+                            <h2>Fullscreen Slider Backgrounds</h2>
+                     
+                                
+                               
+            
+                            
+                            <p>
+                                To change the images and description for home fullscreen slider go to <strong>HTML folder</strong> and open <strong>index.html</strong> line 92.
+                                <br>
+                                You can change the image source to yours, or replace the images that are in <strong>assets/img/slider-images</strong> and add more images if you need.
+                            </p>
+                            
+                            <div class="col-lg-12 highlight box">
+                                <pre><code class="html"><span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"item"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;img</span> <span class="na">src=</span><span class="s">"assets/img/slider-images/image1.jpg"</span><span class="nt">&gt;</span>
+    <span>&lt;div class="carousel-caption header-carousel-caption"&gt;</span>
+      Your Slider Description Here
+    <span>&lt;/div&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+</code></pre>
+                             
+                                
+                            </div>
+
+                            
+                        </div>
+                        
+                         <!-------------------------------------------------------------------------------->
+                        <!-------------------------------------------------------------------------------->
+                        
+                        
+                        <div class="col-lg-12" id="icons" style="margin-bottom:40px; padding-top:20px">
+                            <h2>Icons</h2>
+                            <p>
+                                
+                                <strong>Font Awesome</strong> are @font-face icon sets that you can change color and size using CSS.
+                                <br>
+                                If you need more information about icons, please visit this site:
+                                <br>
+                                <br>
+                                <a href="http://fortawesome.github.io/Font-Awesome/">http://fortawesome.github.io/Font-Awesome/</a>
+                                                              
+                               
+                            </p>
+                            <br>
+                            <p>
+                                HTML Markup:
+                            </p>
+                            
+                            <div class="col-lg-12 highlight box">
+                                <pre><code><span>&lt;i class="fa fa-heart"&gt;&lt;i&gt;</span></code></pre>
+                                
+                            </div>
+
+                            
+                        </div>
+                        
+                        
+                        <!-------------------------------------------------------------------------------->
+                        <!-------------------------------------------------------------------------------->
+                        
+                        
+                        <div class="col-lg-12" id="portfolio" style="margin-bottom:40px; padding-top:20px">
+                            <h2>Projects</h2>
+                            <p>
+                                                    
+                            <br>
+                                Creating a project is quite easy following just two simple steps.<br> 
+                                1) Add Project Item<br> 
+                                2) Create Project Item Description 
+                                
+                                
+                                
+                        
+                            </p>
+                           
+                            <h4>Adding Project Items</h4>
+                            <p>Open <strong>projects.html</strong> </p>
+                            <p>Find the below code and add it to project content under the other project &lt;div class="row"></p>
+                          
+                           
+                            <p>
+                                HTML Markup for project item:
+                            </p>
+                            
+                            <div class="col-lg-12 highlight box" style="margin-bottom: 20px;">
+                                <pre><code>
+<span>&lt;div class="col-sm-6 col-md-4 project-item"></span>
+    <span>&lt;div class="thumbnail projects-thumbnail"></span>
+            <span>&lt;a href="project-inner.html"></span>
+                <span>&lt;img src="assets/img/portfolio/image_3.jpg"></span>            
+            <span>&lt;/a></span>
+        <span>&lt;/div></span>    
+        <span>&lt;div class="project-inner-caption"></span>
+        <span>&lt;div class="project-title"></span>
+            <span>&lt;h3>House in Town&lt;/h3> </span>
+        <span>&lt;/div></span>
+        <span>&lt;p>&lt;i class="fa fa-map-marker"></i> Chicago, 129 m²&lt;/p></span>
+        <span>&lt;p>&lt;i class="fa fa-calendar"></i> 10/02/2012&lt;/p> </span>
+    <span>&lt;/div></span>
+<span>&lt;/div></span>    
+        </code></pre>
+                                
+                            </div>
+                            
+
+
+                           
+            
+                        
+                         <!-------------------------------------------------------------------------------->
+                        <!-------------------------------------------------------------------------------->
+                        
+                        
+                        <div class="col-lg-12" id="google" style="margin-bottom:40px; padding-top:20px">
+                            <h2>Google Map Address</h2>
+                            <p>
+                                
+                               To change the google map address go to <a href="http://itouchmap.com/latlong.html" target="_blank">http://itouchmap.com/latlong.html</a>  fill in your Adress to obtain the latitude and longitude of your point, then go to <strong>assets/js/</strong> open the file <strong>app.js</strong> line 64, fill in your latitude and longitude numbers (latitude is the first):
+                            </p>
+                            <br>
+                            <p>
+                                <strong>app.js</strong> Markup:
+                            </p>
+                            
+                            <div class="col-lg-12 highlight box" style="margin-bottom: 20px;">
+                                <pre><code><span>/* ==============================================</span>
+<span>Google Maps</span>
+<span>==============================================*/</span>
+    <span>function initialize() {</span>
+        <span> var myLatlng = new google.maps.LatLng<span style="background-color:#e0ad44; color:#121212;">(40.712784, -74.005941);</span>
+<span>==============================================*/</span></code></pre>
+                                
+                            </div>
+                           
+                         <!-------------------------------------------------------------------------------->
+                         <!-------------------------------------------------------------------------------->
+                        
+                        
+                        <div class="col-lg-12" id="contact" style="margin-bottom:40px; padding-top:20px">
+                            <h2>Contact Form (PHP Script)</h2>
+                            <p>
+                                
+                                Only thing you need to do to make working contact form is to setup your email address.
+                                <br>
+                                To do this, please open "<strong>HTML</strong>" folder then open "<strong>contact.php</strong>" file and change the email address on line 54:
+                            
+                            </p>
+                            <br>
+                            <p>
+                                <strong>contact.php:</strong>
+                            </p>
+                            
+                            <div class="col-lg-12 highlight box">
+                                <pre><code><span style="color:#999;">54</span><span>   $address = "<span style="color:#fff;">your-email-address@your-domain.com</span>";</span></code></pre>
+                                
+                            </div>
+                            
+                            <div class="col-lg-12 highlight box" style="background-color:#f0f0f0; color:#ec005f; margin-top:15px; padding:10px;">
+                                <strong>One notice:</strong> this will be functional only on your server, php file can not be executed on your local computer.
+                                <br>
+                                <strong>Upload to your server when testing.</strong>
+                            </div>
+
+                            
+                        </div>
+                        
+                               <!-------------------------------------------------------------------------------->
+                         <!-------------------------------------------------------------------------------->
+                        
+                        
+                       <div class="col-lg-12" id="kreda" style="margin-bottom:40px; padding-top:20px">
+                            <h2>Source & Credits</h2>
+                            <p>
+                                
+                                Fonts:<br>
+                                <strong>&nbsp;&nbsp; &nbsp;Google Web Fonts</strong> - <a href="http://www.google.com/webfonts">http://www.google.com/webfonts</a><br>
+                                <strong>&nbsp;&nbsp; &nbsp;Font Awesome Icons Font-face</strong> - <a href="http://fortawesome.github.com/Font-Awesome/">http://fortawesome.github.com/Font-Awesome/</a><br>                                
+                                <br>
+                                Scripts:<br>
+                                <strong>&nbsp;&nbsp; &nbsp;jQuery </strong>- <a href="http://www.jquery.com/">http://www.jquery.com/</a><br>
+                                <strong>&nbsp;&nbsp; &nbsp;Bootstrap Framework</strong> - <a href="http://getbootstrap.com/">http://getbootstrap.com/</a><br>
+                                <strong>&nbsp;&nbsp; &nbsp;Lightbox </strong>- <a href="http://lokeshdhakar.com/projects/lightbox2/">http://lokeshdhakar.com/projects/lightbox2/</a><br>
+                                <strong>&nbsp;&nbsp; &nbsp;Modernizr </strong>- <a href="http://modernizr.com/">http://modernizr.com/</a><br>
+                                <strong>&nbsp;&nbsp; &nbsp;Google Maps Javascript API v3</strong> - <a href="https://developers.google.com/maps/documentation/javascript/">https://developers.google.com/maps/documentation/javascript/</a><br>
+                                
+                                
+                                
+                                
+                                
+                                
+                            
+                            
+                            
+                            
+                            
+
+                                <br>
+                                Images:<br>                                 
+                                 <strong>&nbsp;&nbsp; &nbsp;Flickr</strong>: <a href="https://www.flickr.com/photos/buildersdesign/">https://www.flickr.com/photos/buildersdesign/</a><br>
+                                 
+                                
+                            </p>
+                            <br>
+                           
+                            <h2>
+                                
+                                I really hope you'll enjoy this Template!
+                         
+                            </h2>
+                           <br>                          
+                           
+                           <h4>
+                            Thank you and see you soon!
+                           </h4>
+                           <h4>
+                             <i>Denis Griu</i>
+                           </h4>
+
+                           
+                           
+                           <div class="col-lg-12 highlight box">
+                            <p>For any support, please contact me!</p>
+                               
+                               
+                               
+                                <pre><code><span style="color:#999;">griudenis@gmail.com
+</span></code></pre>
+                                
+                            </div>
+                        </div>
+                        
+                        
+                        
+                        
+
+
+                    </div> 
+            </div>
+        </div>
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+        <script src="js/bootstrap.min.js"></script>
+        
+        <script type='text/javascript'>
+        
+            $(document).ready(function() {
+
+                $('#sidebar').affix({
+                  offset: {
+                    top: 235
+                  }
+            });
+
+            var $body   = $(document.body);
+            var navHeight = $('.navbar').outerHeight(true) + 10;
+
+            $body.scrollspy({
+                target: '#leftCol',
+                offset: navHeight
+            });
+
+            /* smooth scrolling sections */
+            $('a[href*=#]:not([href=#])').click(function() {
+                if (location.pathname.replace(/^\//,'') == this.pathname.replace(/^\//,'') && location.hostname == this.hostname) {
+                  var target = $(this.hash);
+                  target = target.length ? target : $('[name=' + this.hash.slice(1) +']');
+                  if (target.length) {
+                    $('html,body').animate({
+                      scrollTop: target.offset().top - 50
+                    }, 1000);
+                    return false;
+                  }
+                }
+            });
+
+                    });
+        
+        </script>
+        
+    </body>
+</html>
