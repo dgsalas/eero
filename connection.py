@@ -61,12 +61,18 @@ def process_view(url=None):
     return text
 
 if __name__ == '__main__':
-    from model import setup_database, Pages, Sections, PagesSections, ImageTypes
+    from model import setup_database, Pages, Sections, PagesSections, ImageTypes, Clients, Users, Projects, \
+        Rooms, Hours, Images
     admin = Admin(app, name='eero', template_mode='bootstrap3')
 
     admin.add_view(ModelView(Pages, session))
     admin.add_view(ModelView(Sections, session))
-    admin.add_view(ModelView(PagesSections, session))
+    admin.add_view(ModelView(Clients, session))
+    admin.add_view(ModelView(Users, session))
+    admin.add_view(ModelView(Projects, session))
+    admin.add_view(ModelView(Rooms, session))
+    admin.add_view(ModelView(Hours, session))
+    admin.add_view(ModelView(Images, session))
     admin.add_view(ModelView(ImageTypes, session))
 
     setup_database()

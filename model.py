@@ -2,7 +2,7 @@
 """ """
 __author__ = 'dgsalas'
 
-from sqlalchemy.orm import relation, relationship
+from sqlalchemy.orm import relation, relationship, backref
 from sqlalchemy.schema import Column, ForeignKey, Table
 from sqlalchemy.types import Integer, String, Date, Text, Boolean, Time
 from flask_sqlalchemy import SQLAlchemy
@@ -10,31 +10,33 @@ from connection import base, app, session, metadata
 
 db = SQLAlchemy(app)
 
-
-PagesSections = Table('pagessections', metadata,
-                      Column('page_id', Integer, ForeignKey('Pages.id'), primary_key=True),
-                      Column('section_id', Integer, ForeignKey('Sections.id'), primary_key=True))
-
-
-class Pages(base):
-    """ Pages of the site (would it be better to use a CMS?)  """
+class Pages_Base(base):
     __tablename__ = 'pages'
     id = Column(Integer, primary_key=True)
+
+
+class Sections_Base(base):
+    __tablename__ = 'sections'
+    id = Column(Integer, primary_key=True)
+
+
+class PagesSections(base):
+    __tablename__ = 'pagessections'
+    page_id = Column(Integer, ForeignKey('pages.id'), primary_key=True)
+    pages = relationship('Pages_Base', backref='pages')
+
+    sections_id = Column(Integer, ForeignKey('sections.id'), primary_key=True)
+    sections = relationship('Sections_Base', backref='sections')
+
+class Pages(Pages_Base):
+    """ Pages of the site (would it be better to use a CMS?)  """
+    # __tablename__ = 'pages'
     name = Column(String(80), unique=True)
     home = Column(Boolean)
     url = Column(String(50), unique=True)
 
-    sections = relation(
-        "Sections",
-        primaryoin="PagesSections.id",
-        secondary=PagesSections,
-        back_populates="pages")
-
-    # parent_host = relationship("HostEntry",
-    #                        primaryjoin=ip_address == cast(content, INET),
-    #                        foreign_keys=content,
-    #                        remote_side=ip_address
-    #                        )
+    # sections = relationship('Sections', secondary=PagesSections, backref=backref('sections', lazy='dynamic'))
+    # sections = relationship("Sections", secondary=PagesSections)
 
     def __init__(self, name, home, url):
         self.name = name
@@ -45,16 +47,15 @@ class Pages(base):
         return '<Page {}>'.format(self.name)
 
 
-class Sections(base):
+class Sections(Sections_Base):
     """ Section of the site. As you can see, it's a M to N relationship  """
-    __tablename__ = 'sections'
-    id = Column(Integer, primary_key=True)
+    # __tablename__ = 'sections'
     name = Column(String(80), unique=True)
 
-    pages = relationship(
-        "Pages",
-        secondary=PagesSections,
-        back_populates="sections")
+    # pages = relationship(
+    #     "Pages",
+    #     secondary=PagesSections,
+    #     back_populates="sections")
 
     def __init__(self, name):
         self.name = name
