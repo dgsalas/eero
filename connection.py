@@ -1,5 +1,7 @@
+# -*- coding: utf-8 -*-
+""" Connection to the database 0"""
+
 __author__ = 'dgsalas'
-""" """
 
 from config import Config
 from sqlalchemy import create_engine
@@ -8,13 +10,15 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
-from sqlalchemy import MetaData
+from flask_sqlalchemy import SQLAlchemy
 
 
 ENGINES = {}
 
+
 def get_engine(conn_str):
     """
+    :param conn_str = Connexion string
     """
     global ENGINES
     e = ENGINES.get(conn_str)
@@ -31,29 +35,35 @@ Session = sessionmaker(bind=engine)
 session = Session()
 base = declarative_base()
 
-metadata = MetaData()
-
 base.metadata.create_all(engine)
 
-# create our little application :)
 app = Flask(__name__)
 app.debug = settings.debug
 app.config.from_object(__name__)
 
+db = SQLAlchemy(app)
+
 @app.route('/')
 @app.route('/<url>/')
 def process_view(url=None):
-    """  """
+    """
+    :param url: URL Received in the call
+
+    """
     from model import Pages
     if url is None:
-        text = 'processing home'
+        text = 'processing home <br>'
         url = '/'
     else:
-        text = "Processing view {}".format(url)
+        text = "Processing view {}<br>".format(url)
         url = '/' + url + '/'
 
     print url
     page = session.query(Pages).filter(Pages.url == url).first()
+
+    for section in page.sections:
+        print section.name
+        text += '<br>'+section.name
 
     if page is None:
         text = '404'
@@ -61,7 +71,7 @@ def process_view(url=None):
     return text
 
 if __name__ == '__main__':
-    from model import setup_database, Pages, Sections, PagesSections, ImageTypes, Clients, Users, Projects, \
+    from model import setup_database, Pages, Sections, ImageTypes, Clients, Users, Projects, \
         Rooms, Hours, Images
     admin = Admin(app, name='eero', template_mode='bootstrap3')
 

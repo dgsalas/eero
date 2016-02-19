@@ -2,41 +2,47 @@
 """ """
 __author__ = 'dgsalas'
 
-from sqlalchemy.orm import relation, relationship, backref
-from sqlalchemy.schema import Column, ForeignKey, Table
+from sqlalchemy.orm import relation
+from sqlalchemy.schema import Column, ForeignKey
 from sqlalchemy.types import Integer, String, Date, Text, Boolean, Time
-from flask_sqlalchemy import SQLAlchemy
-from connection import base, app, session, metadata
-
-db = SQLAlchemy(app)
-
-class Pages_Base(base):
-    __tablename__ = 'pages'
-    id = Column(Integer, primary_key=True)
+from connection import base, session, db
 
 
-class Sections_Base(base):
-    __tablename__ = 'sections'
-    id = Column(Integer, primary_key=True)
+# This is a third association/helper table
+# posttags = db.Table('posttags',
+#                     db.Column('post_id', db.Integer, db.ForeignKey('post.id')),
+#                     db.Column('tag_id', db.Integer, db.ForeignKey('tag.id'))
+#                     )
+#
+# class Post(db.Model):
+#     id = db.Column(db.Integer, primary_key=True)
+#     body = db.Column(db.Text)
+#     phone_number = db.Column(db.String(50))
+#
+#     tags= db.relationship('Tag', backref='posts', lazy='dynamic')
+#
+# class Tag(db.Model):
+#     id = db.Column(db.Integer, primary_key=True)
+#     name = db.Column(db.String(50))
 
+pagessections = db.Table('pagessections',
+                         db.Column('page_id', db.Integer, db.ForeignKey('pages.id')),
+                         db.Column('section_id', db.Integer, db.ForeignKey('sections.id'))
+                         )
 
-class PagesSections(base):
-    __tablename__ = 'pagessections'
-    page_id = Column(Integer, ForeignKey('pages.id'), primary_key=True)
-    pages = relationship('Pages_Base', backref='pages')
-
-    sections_id = Column(Integer, ForeignKey('sections.id'), primary_key=True)
-    sections = relationship('Sections_Base', backref='sections')
-
-class Pages(Pages_Base):
+class Pages(db.Model):
     """ Pages of the site (would it be better to use a CMS?)  """
-    # __tablename__ = 'pages'
-    name = Column(String(80), unique=True)
-    home = Column(Boolean)
-    url = Column(String(50), unique=True)
+    __tablename__ = 'pages'
+    id = db.Column(db.Integer, unique=True, primary_key=True)
+    name = db.Column(db.String(80), unique=True)
+    home = db.Column(db.Boolean)
+    url = db.Column(db.String(50), unique=True)
 
+    # sections = relationship('Sections', backref='sections', lazy='dynamic')
     # sections = relationship('Sections', secondary=PagesSections, backref=backref('sections', lazy='dynamic'))
     # sections = relationship("Sections", secondary=PagesSections)
+
+    sections = db.relationship('Sections', secondary=pagessections)
 
     def __init__(self, name, home, url):
         self.name = name
@@ -47,15 +53,18 @@ class Pages(Pages_Base):
         return '<Page {}>'.format(self.name)
 
 
-class Sections(Sections_Base):
+class Sections(db.Model):
     """ Section of the site. As you can see, it's a M to N relationship  """
-    # __tablename__ = 'sections'
-    name = Column(String(80), unique=True)
+    __tablename__ = 'sections'
+    id = db.Column(db.Integer, unique=True, primary_key=True)
+    name = db.Column(db.String(80), unique=True)
 
     # pages = relationship(
     #     "Pages",
     #     secondary=PagesSections,
     #     back_populates="sections")
+
+    pages = db.relationship('Pages', secondary=pagessections)
 
     def __init__(self, name):
         self.name = name
